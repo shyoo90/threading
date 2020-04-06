@@ -10,9 +10,10 @@ import time
 app = Flask(__name__)
 
 que = []
+lock1 = threading.Lock()
+#lock2 = threading.Lock()
 condition1 = threading.Condition()
 condition2 = threading.Condition()
-lock = threading.Lock()
 iter = 0
 
 @app.route("/c", methods=["GET","POST"])
@@ -21,17 +22,16 @@ def c():
     if request.method == 'POST':
         data = request.get_json()
         data = list(data.values())[0]
-        with lock:
-            if len(que)>=4:
-                with condition1:
-                    condition1.wait()
-                with condition2:
-                    que.append(data)
-                    condition2.notify()
-            else:
-                with condition2:
-                    que.append(data)
-                    condition2.notify()
+        if len(que)>=4:
+            with condition1:
+                condition1.wait()
+            with condition2:
+                que.append(data)
+                condition2.notify()
+        else:
+            with condition2:
+                que.append(data)
+                condition2.notify()
     return ''
 
 def d():
@@ -45,7 +45,6 @@ def d():
                 iter +=1
                 print(a, iter, file=sys.stderr)
                 condition1.notify()
-
         else:
             with condition2:
                 condition2.wait()
