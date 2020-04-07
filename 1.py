@@ -11,5 +11,5 @@ data2 = '{"text":"Two"}'
 data3 = '{"text":"Three"}'
 data4 = '{"text":"Four"}'
 
-for i in range(1000):
+for i in range(1):
     response = requests.post(url, headers=headers, data=data1)

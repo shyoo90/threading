@@ -10,8 +10,9 @@ import time
 app = Flask(__name__)
 
 que = queue.Queue(maxsize=2)
-lock1 = threading.Lock()
-lock2 = threading.Lock()
+lock1 = threading.RLock()
+lock2 = threading.RLock()
+lock_que = threading.Lock()
 condition1 = threading.Condition(lock1)
 condition2 = threading.Condition(lock2)
 iter = 0
@@ -47,10 +48,10 @@ def d():
         else:
             with condition2:
                 condition2.wait()
+            with condition1:
                 a = que.get()
                 iter +=1
                 print(a, iter,  file=sys.stderr)
-            with condition1:
                 condition1.notify()
 
 
